@@ -81,7 +81,7 @@ export const fetchTop = async (type: "movie" | "tv") => {
   return result;
 }
 export const fetchTrending = async () => {
-  const url = `https://api.themoviedb.org/3/trending/movie/wekk?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&language=en-US' `;
+  const url = `https://api.themoviedb.org/3/trending/movie/week?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&language=en-US`;
   let result;
   try {
     const response = await fetch(url);
