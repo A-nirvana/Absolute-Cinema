@@ -8,13 +8,19 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 export default function ActorPage() {
     const [actor, setActor] = useState(actorExample);
     const [poster, setPoster] = useState(actorExample.poster[0]);
     const [best, setBest] = useState<any[]>([])
     useEffect(() => {
-
+        toast.custom((t) => (
+            <div className="min-w-screen min-h-screen bg-white text-black p-8 rounded border-4">
+              <h1 className="font-semibold">THIS PAGE IS ONLY A DEMO OF WHAT COULD HAVE BEEN IF THE API PROVIDER DID NOT GET THE API DOWN ON THE VERY LAST DAY BEFORE SUBMISSION</h1>
+               <Button variant="destructive" onClick={() => toast.dismiss(t)}>Dismiss</Button>
+            </div>
+          ));
     }, [actor]);
     return (
         <main className="flex justify-evenly mx-20 w-[80vw] min-h-[80vh] h-[90vh] mt-8">

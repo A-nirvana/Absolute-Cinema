@@ -15,7 +15,7 @@ import { Heart, Star } from "lucide-react"
 import Trailer from "@/components/ui/trailer"
 import Link from "next/link"
 import { ratingIcons, convertUrl, convertDuration, watchIcons, determineIdType } from "./utils"
-import { delay } from "./util"
+import { toast } from "sonner"
 
 interface Rating {
     Source: string;
@@ -24,7 +24,7 @@ interface Rating {
 
 interface Person {
     category: string;
-    characters : string[] | null;
+    characters: string[] | null;
     peopleid: string;
     job: string | null
 }
@@ -32,7 +32,7 @@ interface Person {
 export default function MovieDetails() {
     const [currentMovie, setCurrentMovie] = useState({} as any)
     const [image, setImage] = useState("")
-    const [people, setPeople] = useState<Person[]>([{ category:"", characters:null,peopleid:"",job:null}])
+    const [people, setPeople] = useState<Person[]>([{ category: "", characters: null, peopleid: "", job: null }])
     const [details, setDetails] = useState({} as any)
     const [omDetails, setOmDetails] = useState({} as any);
     const [ratings, setRatings] = useState<Rating[]>([])
@@ -43,13 +43,13 @@ export default function MovieDetails() {
 
     const type = determineIdType(movieId)
 
-    if(type == "tmdb"){
+    if (type == "tmdb") {
         fetch(`https//api.themoviedb.https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${process.env.TMDB_API_KEY}`).
-        then((res) => res.json().then((data)=>{
-            movieId = data.imdb_id
-        }))       
+            then((res) => res.json().then((data) => {
+                movieId = data.imdb_id
+            }))
     }
-    
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -58,32 +58,40 @@ export default function MovieDetails() {
                     setOmDetails(omDbData);
                     setRatings(omDbData.Ratings);
                 }
-                const movieData = await fetchMovieDetails(movieId);
-                {
-                    setCurrentMovie(movieData);
+                // const movieData = await fetchMovieDetails(movieId);
+                // {
+                //     setCurrentMovie(movieData);
+                // }
+                // fetchAdditionalDetails(movieId).then((data) => {
+                    //     setDetails(data)
+                    // })
+                } catch (error) {
+                    console.error("Error fetching movie details:", error);
                 }
-                fetchAdditionalDetails(movieId).then((data) => {
-                    setDetails(data)
-                })
-            } catch (error) {
-                console.error("Error fetching movie details:", error);
-            }
-            await delay(3000)
-        };
-
-        fetchData();
-    }, [movieId])
+            };
+            
+            fetchData();
+            toast.custom((t) => (
+                <div className="min-w-screen min-h-screen bg-white text-black p-8 rounded border-4">
+                  <h1 className="font-semibold">THIS PAGE IS ONLY A DEMO OF WHAT COULD HAVE BEEN IF THE API PROVIDER DID NOT GET THE API DOWN ON THE VERY LAST DAY BEFORE SUBMISSION</h1>
+                   <Button variant="destructive" onClick={() => toast.dismiss(t)}>Dismiss</Button>
+                </div>
+              ));
+        }, [movieId])
+        
+        
+        useEffect(() => {
+            setCurrentMovie(titleExample)
+            setDetails(additionalExample)
+    }, [])
 
     useEffect(() => {
-        setReviews(details.reviews)
-        if(details.people)setPeople(details.people)
-        if (details.trailerUrl) {
-            setVideoId(convertUrl(details.trailerUrl[0]))
-        }
-        if(currentMovie.imageurl){
-            setImage(currentMovie.imageurl[0])
-        }
+        setReviews(additionalExample.reviews)
+        setPeople(additionalExample.people)
+        setVideoId(convertUrl(additionalExample.trailerUrl[0]))
+        setImage(titleExample.imageurl[0])
     }, [details])
+
 
     return (
         <main className="h-max" >
@@ -121,7 +129,7 @@ export default function MovieDetails() {
                     </div>
                     <Separator className="my-2" />
                     <Label className="text-accent-foreground text-2xl font-semibold">Cast & Crew</Label>
-                    <Label className="text-muted-foreground font-semibold">Director: <Link className="text-accent-foreground font-normal" href={`/stars/${additionalExample.people.length > 0 ? (additionalExample.people.filter((person) => person.category == "director")[0].peopleid) : "unknown"
+                    <Label className="text-muted-foreground font-semibold">Director: <Link className="text-accent-foreground font-normal" href={`/star/${additionalExample.people.length > 0 ? (additionalExample.people.filter((person) => person.category == "director")[0].peopleid) : "unknown"
                         }`}>{omDetails.Director}</Link></Label>
                     <Label className="text-muted-foreground font-semibold flex space-x-2"><p>Writers:</p><p className="text-accent-foreground font-normal">{omDetails.Writer}</p></Label>
                     <Label className="text-muted-foreground font-semibold flex flex-wrap space-x-2"><p>Actors:</p> {
@@ -151,7 +159,7 @@ export default function MovieDetails() {
                             <Label className="text-muted-foreground font-semibold mt-4">Stream Now on</Label>
                             <div className="flex flex-wrap mt-">
                                 {currentMovie.streamingAvailability && currentMovie.streamingAvailability.country && currentMovie.streamingAvailability.country.IN &&
-                                    currentMovie.streamingAvailability.country.IN.slice(0,8).map((streamingService: any) => (
+                                    currentMovie.streamingAvailability.country.IN.slice(0, 8).map((streamingService: any) => (
                                         <div key={streamingService.service} className="flex items-center space-x-2">
                                             {watchIcons[streamingService.platform] ?
                                                 <Button variant="secondary" size="sm" className="overflow-hidden">
@@ -168,7 +176,7 @@ export default function MovieDetails() {
                             {details.reviews && details.reviews[0] && <Label className="text-muted-foreground font-semibold mt-2">Reviews</Label>}
                             <div className="flex flex-wrap mt-2 w-[90%] md:w-[120%]">
                                 {reviews && reviews.slice(0, 4).map((review: string, index) => (
-                                    <li key={index}>    
+                                    <li key={index}>
                                         <ScrollArea className="h-20 w-full text-xs p-0.5 px-2 md:px-3 md:h-48 md:w-48 border-2 rounded-md mr-8 mb-4 md:mb-8 md:text-sm md:p-3 text-muted-foreground bg-muted">
                                             <p>{review}</p>
                                         </ScrollArea>
