@@ -35,17 +35,17 @@ const ClientComponent: React.FC<ClientComponentProps> = ({ hoarding, popular, no
     <>
       <CarouselDemo auto num={1} list={hoarding} />
       <Label className="font-semibold text-xl text-muted-foreground mt-12 mb-4 w-[84%]">TRENDING</Label>
-      <CarouselDemo list={trending.slice(1)} />
+      <CarouselDemo list={trending} />
       <Label className="font-semibold md:text-xl text-muted-foreground mt-16 mb-4 w-[84%]">POPULAR</Label>
-      <CarouselDemo list={popular.slice(1)} />
+      <CarouselDemo list={popular} />
       <Label className="font-semibold text-xl text-muted-foreground mt-12 mb-4 w-[84%]">NOW PLAYING</Label>
-      <CarouselDemo list={now.slice(1)} />
+      <CarouselDemo list={now} />
       <Label className="font-semibold text-xl text-muted-foreground mt-12 mb-4 w-[84%]">UPCOMING MOVIES</Label>
-      <CarouselDemo list={upcoming.slice(1)} />
+      <CarouselDemo list={upcoming} />
       <Label className="font-semibold text-xl text-muted-foreground mt-12 mb-4 w-[84%]">TOP RATED MOVIES</Label>
-      <CarouselDemo list={top.slice(1)} />
+      <CarouselDemo list={top} />
       <Label className="font-semibold text-xl text-muted-foreground mt-12 mb-4 w-[84%]">Editor`&apos;`s Top Picks</Label>
-      <CarouselDemo list={picks.slice(1)} />
+      <CarouselDemo list={picks} />
     </>
   );
 };
