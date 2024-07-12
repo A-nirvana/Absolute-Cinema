@@ -44,8 +44,6 @@ const ClientComponent: React.FC<ClientComponentProps> = ({ hoarding, popular, no
       <CarouselDemo list={upcoming.slice(1)} />
       <Label className="font-semibold text-xl text-muted-foreground mt-12 mb-4 w-[84%]">TOP RATED MOVIES</Label>
       <CarouselDemo list={top.slice(1)} />
-      <Label className="font-semibold text-xl text-muted-foreground mt-12 mb-4 w-[84%]">SUGGESTED</Label>
-      <CarouselDemo />
       <Label className="font-semibold text-xl text-muted-foreground mt-12 mb-4 w-[84%]">Editor`&apos;`s Top Picks</Label>
       <CarouselDemo list={picks.slice(1)} />
     </>

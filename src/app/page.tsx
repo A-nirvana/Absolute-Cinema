@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { editorChoice, fetchNowPlaying, fetchPopular, fetchTop, fetchUpcoming } from '@/lib/apis';
+import { editorChoice, fetchNowPlaying, fetchPopular, fetchTop, fetchTrending, fetchUpcoming } from '@/lib/apis';
 import ClientComponent from '@/components/ClientComponent';
 import Loading from './loading';
 
@@ -26,12 +26,13 @@ const HomePage = async () => {
   const top = await fetchTop('movie').then((data) => data.results);
   const popular = await fetchPopular('movie').then((data) => data.results);
   const upcoming = await fetchUpcoming().then((data) => data.results);
+  const trending = await fetchTrending().then((data) => data.results);
   const hoarding = [popular[0], now[0], top[0], upcoming[0], picks[0]];
 
   return (
     <div className="flex flex-col items-center mb-20 max-w-[100vw] text-center md:text-left md:text-xl">
       <Suspense fallback={<Loading />}>
-        <ClientComponent hoarding={hoarding} popular={popular} now={now} upcoming={upcoming} top={top} picks={picks} />
+        <ClientComponent hoarding={hoarding} popular={popular} now={now} upcoming={upcoming} top={top} picks={picks} trending={trending}/>
       </Suspense>
     </div>
   );

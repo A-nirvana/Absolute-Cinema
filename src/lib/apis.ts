@@ -80,7 +80,18 @@ export const fetchTop = async (type: "movie" | "tv") => {
   }
   return result;
 }
-
+export const fetchTrending = async () => {
+  const url = `https://api.themoviedb.org/3/trending/movie/wekk?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&language=en-US' `;
+  let result;
+  try {
+    const response = await fetch(url);
+    result = await response.json();
+  }
+  catch (e) {
+    console.log(e)
+  }
+  return result;
+}
 export const fetchNowPlaying = async (type: "movie" | "tv") => {
   const url = `https://api.themoviedb.org/3/discover/${type}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&language=en-US&page=1&sort_by=popularity.desc&with_release_type=2|3&release_date.gte=2024-04-01&release_date.lte=2024-05-20`;
   let result;
