@@ -13,7 +13,8 @@ const watchIcons: { [key: string]: string } = {
     "itunes": 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/ITunes_Store_logo_2017.svg/640px-ITunes_Store_logo_2017.svg.png',
     "play": 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Google_Play_2022_logo.svg/768px-Google_Play_2022_logo.svg.png?20220726170516',
     "youtube": 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_Logo_2017.svg/768px-YouTube_Logo_2017.svg.png?20230929095411',
-    "hungama": 'https://upload.wikimedia.org/wikipedia/commons/4/4b/Hungama_logo.png',
+    "hungamaplay": 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Hungama_TV.svg/640px-Hungama_TV.svg.png',
+    "amazonprimevideo" : "https://upload.wikimedia.org/wikipedia/commons/f/f1/Prime_Video.png"
   }
 
 function convertUrl(oldUrl: string) {
@@ -41,6 +42,19 @@ function convertDuration(durationStr:string) {
     }
   
     return `${hours} hr ${remainingMinutes} min`;
+  }
+
+export function determineIdType(id: string): 'tmdb' | 'imdb' | 'unknown' {
+    const tmdbRegex = /^\d+$/; // TMDb IDs are numeric
+    const imdbRegex = /^tt\d+$/; // IMDb IDs start with 'tt' followed by digits
+  
+    if (tmdbRegex.test(id)) {
+      return 'tmdb';
+    } else if (imdbRegex.test(id)) {
+      return 'imdb';
+    } else {
+      return 'unknown';
+    }
   }
 
 export { convertUrl, convertDuration }

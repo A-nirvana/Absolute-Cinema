@@ -24,7 +24,7 @@
       --secondary: 210 40% 96.1%;
       --secondary-foreground: 222.2 47.4% 11.2%;
 
-      --muted: 210 40% 96.1%;
+      --muted: 210 40% 80.1%;
       --muted-foreground: 215.4 16.3% 46.9%;
 
       --accent: 210 40% 96.1%;
@@ -63,7 +63,7 @@
       --accent: 217.2 32.6% 17.5%;
       --accent-foreground: 210 40% 98%;
 
-      --destructive: 0 62.8% 30.6%;
+      --destructive: 0 84.2% 60.2%;
       --destructive-foreground: 210 40% 98%;
 
       --border: 217.2 32.6% 17.5%;
@@ -77,9 +77,26 @@
       @apply border-border;
       scrollbar-width:thin;
       scroll-behavior: smooth;
-      overflow-x: clip;
     }
     body {
       @apply bg-background text-foreground;
+      scrollbar-gutter: stable thin;
+    }
+  }
+
+  #custom-select:focus{
+    outline: none;
+  }
+
+  #map{
+    height: 90vh;
+    width: 50%;
+    z-index: 0;
+  }
+
+  @media (max-width: 768px) {
+    #map{
+      height: 60vh;
+      width: 100%;
     }
   }

@@ -1,19 +1,32 @@
 "use client"
 
-import { fetchMovies } from "@/lib/apis"
 import { Label } from "./ui/label"
 import { Input } from "./ui/input"
 import { Button } from "./ui/button"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Filter, Search } from "lucide-react"
 import DropdownMenuDemo from "./dropdown"
 interface NavbarProps {
     setInfo: (value: any) => void;
-    setLoading: (value: boolean) => void;
+    setLoading: Function;
+    page: number;
+    setPage: Function
 }
 
-const Navbar: React.FC<NavbarProps> = ({ setInfo, setLoading }) => {
+const Navbar: React.FC<NavbarProps> = ({ setInfo, setLoading, page,setPage }) => {
     const [movie, setMovie] = useState("")
+    useEffect(()=>{
+        try {
+            if(movie)fetch(`/api?movie=${movie}&page=${page}`).then((res) => {
+                res.json().then((data)=>{
+                    setInfo(data.data)
+                });
+            })
+        }
+        catch (e) {
+            console.log(e)
+        }
+    },[page])
     return (
         <section className="w-full h-max px-1 md:px-7 md:mt-4 bg-contain absolute z-10 flex flex-col items-center mt-4">
             <Label htmlFor="movie" className="font-semibold mb-2 hidden md:flex md:text-lg">Search Movies & Shows</Label>
@@ -26,21 +39,24 @@ const Navbar: React.FC<NavbarProps> = ({ setInfo, setLoading }) => {
                     <DropdownMenuDemo category="Rating" items={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]} />
                 </div>
                 <form onSubmit={async (e) => {
+                        setLoading(1);
                         e.preventDefault();
+                        setTimeout(()=>{},1000)
                         if (movie) {
-                            setLoading(true)
                             setInfo({})
                             try {
-                                fetchMovies(movie).then((data) => {
-                                    setInfo(data)
+                                fetch(`/api?movie=${movie}&page=${page}`).then((res) => {
+                                    res.json().then((data)=>{
+                                        console.log(data)
+                                        setInfo(data.data)
+                                        setPage(1)
+                                    });
                                 })
                             }
                             catch (e) {
                                 console.log(e)
                             }
-                            finally {
-                                setLoading(false)
-                            }
+                            
                         }
                     }} className="w-[80%] md:w-[60%] flex justify-between md:justify-end">
                     <Input id="movie" value={movie} className="mr-2 w-[80%] md:w-[50%]" onChange={(e) => { setMovie(e.target.value) }} />

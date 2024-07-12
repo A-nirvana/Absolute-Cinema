@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
+import UserProvider from "./UserProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,15 +21,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className+ "flex flex-col"}>
+      <body className={inter.className + "flex flex-col]"}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
-          enableSystem
-        ><Header/>
-          {children}
+          enableSystem>
+          <UserProvider>
+            <Header />
+            {children}
+          </UserProvider>
+        <Footer />
+        <Toaster/>
         </ThemeProvider>
-        <Footer/>
       </body>
     </html>
   );

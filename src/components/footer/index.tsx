@@ -4,7 +4,7 @@ const Footer = () => {
         <main>
             <hr className=' bg-muted-foreground h-3 '/>
             <div className=' bg-muted text-center'>
-                <div className='flex justify-around py-8'>
+                <div className='flex flex-wrap justify-between py-8 px-8 md:px-16'>
                     <div>
                         <div className="flex top-soc space-x-3">
                             <a data-track="twitter" href="https://twitter.com/GawdGambit" target="_blank" className="link-s w-inline-block">
@@ -21,7 +21,7 @@ const Footer = () => {
                     </p>
                     </div>
                     
-                <div id="node">
+                <div id="node" className="w-[40%] md:max-w-[10vw]">
                     <div className=' text-xl font-semibold'>Product</div>
                     <ul>
                         <li><a>Download</a></li>
@@ -30,7 +30,7 @@ const Footer = () => {
                         <li><a>App Directory</a></li>
                     </ul>
                 </div>
-                <div>
+                <div className="w-[40%] md:max-w-[10vw] mt-12 md:mt-0">
                     <div className=' text-xl font-semibold'>Resources</div>
                     <ul>
                         <li><a>College</a></li>
@@ -42,7 +42,7 @@ const Footer = () => {
                         <li><a>Quests</a></li>
                     </ul>
                 </div>
-                <div>
+                <div className="w-[40%] md:max-w-[10vw] mt-12 md:mt-0">
                     <div className=' text-xl font-semibold'>Policies</div>
                     <ul>
                         <li><a>Terms</a></li>

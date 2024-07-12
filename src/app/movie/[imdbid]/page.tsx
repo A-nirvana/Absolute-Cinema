@@ -14,41 +14,77 @@ import { Button } from "@/components/ui/button"
 import { Heart, Star } from "lucide-react"
 import Trailer from "@/components/ui/trailer"
 import Link from "next/link"
-import { ratingIcons, convertUrl, convertDuration, watchIcons } from "./utils"
+import { ratingIcons, convertUrl, convertDuration, watchIcons, determineIdType } from "./utils"
+import { delay } from "./util"
 
 interface Rating {
     Source: string;
     Value: string;
 }
 
-export default function SheetDemo() {
+interface Person {
+    category: string;
+    characters : string[] | null;
+    peopleid: string;
+    job: string | null
+}
+
+export default function MovieDetails() {
     const [currentMovie, setCurrentMovie] = useState({} as any)
+    const [image, setImage] = useState("")
+    const [people, setPeople] = useState<Person[]>([{ category:"", characters:null,peopleid:"",job:null}])
     const [details, setDetails] = useState({} as any)
     const [omDetails, setOmDetails] = useState({} as any);
     const [ratings, setRatings] = useState<Rating[]>([])
     const [reviews, setReviews] = useState([""])
     const [videoId, setVideoId] = useState("")
     const params = useParams()
-    const movieId = Array.isArray(params.imdbid) ? params.imdbid[0] : params.imdbid;
-    // useEffect(() => {
-    //         console.log(movieId)
-    //         fetchMovieDetails(movieId).then((data) => {
-    //             setCurrentMovie(data);
-    //         });
-    //         fetchAdditionalDetails(movieId).then((data) => {
-    //             setDetails(data);
-    //         });
-    // }, [movieId])
+    let movieId = Array.isArray(params.imdbid) ? params.imdbid[0] : params.imdbid;
+
+    const type = determineIdType(movieId)
+
+    if(type == "tmdb"){
+        fetch(`https//api.themoviedb.https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${process.env.TMDB_API_KEY}`).
+        then((res) => res.json().then((data)=>{
+            movieId = data.imdb_id
+        }))       
+    }
+    
     useEffect(() => {
-        fetchOMDbDetails(movieId).then((data) => {
-            setOmDetails(data)
-            setRatings(data.Ratings);
-        })
-        setCurrentMovie(titleExample);
-        setDetails(additionalExample);
-        setReviews(additionalExample.reviews);
-        setVideoId(convertUrl(additionalExample.trailerUrl[0]))
+        const fetchData = async () => {
+            try {
+                const omDbData = await fetchOMDbDetails(movieId);
+                {
+                    setOmDetails(omDbData);
+                    setRatings(omDbData.Ratings);
+                }
+                const movieData = await fetchMovieDetails(movieId);
+                {
+                    setCurrentMovie(movieData);
+                }
+                fetchAdditionalDetails(movieId).then((data) => {
+                    setDetails(data)
+                })
+            } catch (error) {
+                console.error("Error fetching movie details:", error);
+            }
+            await delay(3000)
+        };
+
+        fetchData();
     }, [movieId])
+
+    useEffect(() => {
+        setReviews(details.reviews)
+        if(details.people)setPeople(details.people)
+        if (details.trailerUrl) {
+            setVideoId(convertUrl(details.trailerUrl[0]))
+        }
+        if(currentMovie.imageurl){
+            setImage(currentMovie.imageurl[0])
+        }
+    }, [details])
+
     return (
         <main className="h-max" >
             <section className="flex justify-center w-full h-[92%] pt-8">
@@ -58,8 +94,8 @@ export default function SheetDemo() {
                     <Label className="text-xs font-semibold mb-4 md:text-start text-center">{omDetails.Type} . {currentMovie.released} . {omDetails.Rated}-rated</Label>
                     <div className="flex md:border-2 md:dark:border-0 dark:border-slate-700 shadow-md shadow-slate-600 dark:shadow-none md:h-max h-30 rounded w-screen md:w-max absolute md:static left-0">
                         <div className="text-pink-500"><Heart className="absolute fill-pink-500 hover:opacity-90 hidden md:flex" size={36} /></div>
-                        {(currentMovie.imageurl && currentMovie.imageurl[0]) ?
-                            <Image src={currentMovie.imageurl[0]} alt={currentMovie.title} width={270} height={360} className="rounded-l border-r-4 border-transparent hidden md:block" /> :
+                        {(omDetails) ?
+                            <Image src={image} alt={currentMovie.title} width={270} height={360} className="rounded-l border-r-4 border-transparent hidden md:block" /> :
                             <Skeleton className="h-[210px] w-[150px] border-2 rounded shadow-md shadow-slate-600 dark:shadow-slate-800 hidden md:block" />}
                         {videoId && <Trailer videoId={videoId} />}
                     </div>
@@ -85,16 +121,15 @@ export default function SheetDemo() {
                     </div>
                     <Separator className="my-2" />
                     <Label className="text-accent-foreground text-2xl font-semibold">Cast & Crew</Label>
-                    <Label className="text-muted-foreground font-semibold">Director: <Link className="text-accent-foreground font-normal" href={`/stars/${
-                        additionalExample.people.length>0?(additionalExample.people.filter((person)=>person.category=="director")[0].peopleid):"unknown"
-                    }`}>{omDetails.Director}</Link></Label>
+                    <Label className="text-muted-foreground font-semibold">Director: <Link className="text-accent-foreground font-normal" href={`/stars/${additionalExample.people.length > 0 ? (additionalExample.people.filter((person) => person.category == "director")[0].peopleid) : "unknown"
+                        }`}>{omDetails.Director}</Link></Label>
                     <Label className="text-muted-foreground font-semibold flex space-x-2"><p>Writers:</p><p className="text-accent-foreground font-normal">{omDetails.Writer}</p></Label>
                     <Label className="text-muted-foreground font-semibold flex flex-wrap space-x-2"><p>Actors:</p> {
-                        additionalExample.people.length>0?(additionalExample.people.map((person,index)=>(
-                            (person.category=="actor" || person.category=="actress") && person.characters &&
-                             <Link key={index} href={`/stars/${person.peopleid}`} className="text-accent-foreground font-normal">{person.characters[0]},</Link>
-                        ))):(<p>No known actor</p>)}</Label>
-                        <Separator className="my-2 w-[50%]" />
+                        people.length > 0 ? (people.map((person, index) => (
+                            (person.category == "actor" || person.category == "actress") && person.characters &&
+                            <Link key={index} href={`/stars/${person.peopleid}`} className="text-accent-foreground font-normal">{person.characters[0]},</Link>
+                        ))) : (<p>No known actor</p>)}</Label>
+                    <Separator className="my-2 w-[50%]" />
                     <div className="flex space-x-3">
                         <Label className="text-muted-foreground font-semibold">Awards: </Label>
                         <p className="text-sm font-semibold">{omDetails.Awards}</p>
@@ -115,11 +150,11 @@ export default function SheetDemo() {
                             </div>
                             <Label className="text-muted-foreground font-semibold mt-4">Stream Now on</Label>
                             <div className="flex flex-wrap mt-">
-                                {currentMovie.streamingAvailability && currentMovie.streamingAvailability.country && currentMovie.streamingAvailability.country.US &&
-                                    currentMovie.streamingAvailability.country.US.map((streamingService: any) => (
+                                {currentMovie.streamingAvailability && currentMovie.streamingAvailability.country && currentMovie.streamingAvailability.country.IN &&
+                                    currentMovie.streamingAvailability.country.IN.slice(0,8).map((streamingService: any) => (
                                         <div key={streamingService.service} className="flex items-center space-x-2">
                                             {watchIcons[streamingService.platform] ?
-                                                <Button variant="secondary" size="sm">
+                                                <Button variant="secondary" size="sm" className="overflow-hidden">
                                                     <Image src={watchIcons[streamingService.platform]} alt={streamingService.platform} width={60} height={30} className="" />
                                                 </Button>
                                                 : <Button variant="secondary" size="sm">{streamingService.platform}</Button>
@@ -132,8 +167,8 @@ export default function SheetDemo() {
                         <div className="max-w-[40rem] md:w-[50%] w-full">
                             {details.reviews && details.reviews[0] && <Label className="text-muted-foreground font-semibold mt-2">Reviews</Label>}
                             <div className="flex flex-wrap mt-2 w-[90%] md:w-[120%]">
-                                {reviews.slice(0, 4).map((review: string) => (
-                                    <li>
+                                {reviews && reviews.slice(0, 4).map((review: string, index) => (
+                                    <li key={index}>    
                                         <ScrollArea className="h-20 w-full text-xs p-0.5 px-2 md:px-3 md:h-48 md:w-48 border-2 rounded-md mr-8 mb-4 md:mb-8 md:text-sm md:p-3 text-muted-foreground bg-muted">
                                             <p>{review}</p>
                                         </ScrollArea>

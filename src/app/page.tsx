@@ -1,35 +1,40 @@
-"use client"
+import { Suspense } from 'react';
+import { editorChoice, fetchNowPlaying, fetchPopular, fetchTop, fetchUpcoming } from '@/lib/apis';
+import ClientComponent from '@/components/ClientComponent';
+import Loading from './loading';
 
-import { useEffect, useState } from "react";
-import Loading from "./loading";
-import { Label } from "@/components/ui/label";
-import CarouselDemo from "@/components/carousel";
-
-const HomePage: React.FC = () => {
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 5000);
-  }, []);
-    
-  if(loading) return <Loading/>
-    return (
-      <div className="flex flex-col mx-8 mt-8">
-          <Label className="text-lg font-semibold text-muted-foreground">Popular Movies & Shows</Label>
-          <CarouselDemo auto={true}/>
-          <Label className="text-lg font-semibold text-muted-foreground">Now Playing</Label>
-          <CarouselDemo/>
-          <Label className="text-lg font-semibold text-muted-foreground">Upcoming Movies & Shows</Label>
-          <CarouselDemo/>
-          <Label className="text-lg font-semibold text-muted-foreground">Trending Movies & Shows</Label>
-          <CarouselDemo/>
-          <Label className="text-lg font-semibold text-muted-foreground">Suggested Movies</Label>
-          <CarouselDemo/>
-          <Label className="text-lg font-semibold text-muted-foreground">Editor's Choice</Label>
-          <CarouselDemo/>
-        </div>
-    )
+export interface MovieList {
+  adult: boolean;
+  backdrop_path: string;
+  genre_ids: number[];
+  id: number;
+  original_language: string;
+  original_title: string;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  release_date: string;
+  title: string;
+  video: boolean;
+  vote_average: number;
+  vote_count: number;
 }
 
-export default HomePage
+const HomePage = async () => {
+  const now = await fetchNowPlaying('movie').then((data) => data.results);
+  const picks = await editorChoice().then((data) => data.results);
+  const top = await fetchTop('movie').then((data) => data.results);
+  const popular = await fetchPopular('movie').then((data) => data.results);
+  const upcoming = await fetchUpcoming().then((data) => data.results);
+  const hoarding = [popular[0], now[0], top[0], upcoming[0], picks[0]];
+
+  return (
+    <div className="flex flex-col items-center mb-20 max-w-[100vw] text-center md:text-left md:text-xl">
+      <Suspense fallback={<Loading />}>
+        <ClientComponent hoarding={hoarding} popular={popular} now={now} upcoming={upcoming} top={top} picks={picks} />
+      </Suspense>
+    </div>
+  );
+};
+
+export default HomePage;

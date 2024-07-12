@@ -1,7 +1,7 @@
 "use client"
 
 import Navbar from "@/components/navBar"
-import { PaginationDemo } from "@/components/pagination"
+import PaginationDemo from "@/components/pagination"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -16,46 +16,82 @@ import {
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import { fetchMovieDetails } from "@/lib/apis"
-import { ArrowRight, ChevronRight, Loader2 } from "lucide-react"
+import { ArrowRight, ChevronRight, Heart, Loader2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { useUser } from "../UserProvider"
+import { addFavorite, getUser } from "@/lib/firebase/fireStore"
+import { DocumentData } from "firebase/firestore"
 
 export default function SheetDemo() {
     const [info, setInfo] = useState({} as any)
-    const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(0)
     const [sheetOpen, setSheetOpen] = useState(false)
     const [currentMovie, setCurrentMovie] = useState({} as any)
     const [details, setDetails] = useState({} as any)
+    const [count, setCount] = useState(0)
+    const user = useUser()
+    const [userDetails, setUserDetails] = useState<DocumentData>()
+    useEffect(() => {
+        if (user) {
+            getUser(user).then((data) => {
+                setUserDetails(data)
+            })
+        }
+    }, [user])
     useEffect(() => {
         setDetails({})
-        if(currentMovie.Title)fetchMovieDetails(currentMovie.imdbID).then((data) => {
+        if (currentMovie.Title) fetchMovieDetails(currentMovie.imdbID).then((data) => {
             setDetails(data)
         })
     }, [currentMovie.imdbID])
+    useEffect(() => {
+        setTotalPages(Math.ceil(info.totalResults / 10))
+    }, [info])
     return (
-        <main className="h-max w-screen" >
+        <main className="h-max w-[99vw]" >
             <section className="flex justify-between w-full h-full">
-                <Navbar setInfo={setInfo} setLoading={setLoading} />
+                <Navbar setInfo={setInfo} setLoading={setCount} page={page} setPage={setPage} />
                 <section className="flex w-full justify-center mt-20 md:mt-32 flex-wrap h-max min-h-[80vh]">
                     {/* <p>Search results for '{currentMovie.Title}'</p> */}
-                    {!info.Response && <div className="h-[80vh] flex justify-center items-center">Search for something good</div>}
-                        {info.Response=="True" && !loading && info.Search.map((item: any) => (
-                        <div key={item.imdbID} className="w-[100px] md:w-44 mb-4 ml-2 mr-2 md:mb-12 md:mr-6 md:ml-6 cursor-pointer" onClick={() => {
-                            setCurrentMovie(item)
-                            setSheetOpen(true)
-                        }}>
-                            {(item.Poster != "N/A") ?
-                                <Image src={item.Poster} alt={item.Title} width={300} height={400} className="border-2 w-[100px] md:w-max dark:border-black rounded shadow-md shadow-slate-600 dark:shadow-slate-600" /> :
-                                <Skeleton className="h-[210px] w-[150px] border-2 rounded shadow-md shadow-slate-600 dark:shadow-slate-800" />}
-                            <Label className="text-sm md:text-lg md:font-semibold">{item.Title}</Label>
+                    {!info.Response && <div className="h-[80vh] flex justify-center items-center">
+                        {count < 1 ? "Search for something good" : <Loader2 className="animate-spin" size={70} />}</div>}
+                    {info.Response == "True" && info.Search.map((item: any) => (
+                        <div key={item.imdbID} className="w-[100px] md:w-44 mb-4 ml-2 mr-2 md:mb-12 md:mr-6 md:ml-6 cursor-pointer overflow-hidden" >
+                            <div className="h-max overflow-hidden w-max bg-black rounded" onClick={() => {
+                                setCurrentMovie(item)
+                                setSheetOpen(true)
+                            }}>
+                                <Image src={item.Poster != "N/A" ? item.Poster : "/srch-bg.jpg"} alt={item.Title} width={150} height={220} className=" w-[100px] md:w-[150px] md:h-[215px] dark:border-black shadow-md shadow-slate-600 dark:shadow-slate-600 hover:scale-125 duration-100 hover:opacity-75" />
+                            </div>
+                            <Label className="text-sm md:text-lg md:font-semibold flex mt-2">
+                                {userDetails?.favorites.some((obj: any) => obj.imdbid === item.imdbID) ?
+                                    <Heart className="fill-pink-500 hover:opacity-90 flex left-4 text-pink-500 cursor-pointer h-[24px]" size={24}
+                                    /> :
+                                    <Heart className="fill-white hover:opacity-90 flex left-4 cursor-pointer" size={24}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            console.log("Already in favorites")
+                                            addFavorite(user, item.imdbID, item.Poster, item.Title)
+                                            const element = e.currentTarget;
+                                            if (element.classList.contains('fill-white')) {
+                                              element.classList.remove('fill-white');
+                                              element.classList.add('fill-pink-500', 'text-pink-500');
+                                              addFavorite(user, item.imdbID, item.Poster, item.Title);
+                                            } else {
+                                              console.log("Already in favorites");
+                                            }
+                                        }}
+                                    />}
+                                <p className="w-4/5">{item.Title}</p></Label>
                         </div>
                     ))}
-                    {info.Response=="False" && <div className="h-[80vh] flex justify-center items-center">No Movies or Shows found</div>}
-                    {loading && <Loader2 className="animate-spin" size={70} />}
+                    {info.Response == "False" && <div className="h-[80vh] flex justify-center items-center">No Movies or Shows found</div>}
                 </section>
             </section>
-            {info.Response=="True" && <PaginationDemo/>}
+            {info.Response == "True" && <PaginationDemo page={page} totalPages={totalPages} setPage={setPage} />}
             <Sheet open={sheetOpen}>
                 <SheetContent className="overflow-y-scroll">
                     <SheetClose asChild className="fixed top-2 right-[350px] hidden md:flex" onClick={() => {
@@ -64,11 +100,11 @@ export default function SheetDemo() {
                         <Button className="rounded-full" variant='outline' size='icon'><ChevronRight /></Button>
                     </SheetClose>
                     <SheetHeader className="flex flex-col items-center">
-                    <SheetClose asChild className="fixed top-2 left-2 flex md:hidden" onClick={() => {
-                        setSheetOpen(false)
-                    }}>
-                        <Button className="rounded-full" variant='outline'><ArrowRight /></Button>
-                    </SheetClose>
+                        <SheetClose asChild className="fixed top-2 left-2 flex md:hidden" onClick={() => {
+                            setSheetOpen(false)
+                        }}>
+                            <Button className="rounded-full" variant='outline'><ArrowRight /></Button>
+                        </SheetClose>
                         <SheetTitle className="text-center">{currentMovie.Title}   {`(${currentMovie.Type})`}</SheetTitle>
                         {(currentMovie.Poster) ?
                             <Image src={currentMovie.Poster} alt={currentMovie.Title} width={225} height={300} className="border-4 dark:border-slate-700 rounded shadow-md shadow-slate-600 dark:shadow-none" /> :
@@ -78,13 +114,14 @@ export default function SheetDemo() {
                             {currentMovie.synopsis && <p className="text-start">{currentMovie.synopsis}</p>}
                         </SheetDescription>
                     </SheetHeader>
-                     <Separator className="my-2" />
-                     {!details.released && <div className="h-[50vh] w-full flex justify-center items-center">
-                        <div className="h-max w-max"><Loader2 className=" animate-spin" size={70}/></div></div>}
+                    <Separator className="my-2" />
+                    <Link href={`movie/${currentMovie.imdbID}`}>Get the Details</Link>
+                    {!details.released && <div className="h-[50vh] w-full flex justify-center items-center">
+                        <div className="h-max w-max"><Loader2 className=" animate-spin" size={70} /></div></div>}
                     {details.released && <div>
                         <div className="flex text-sm items-center space-x-4 h-10 mb-4 justify-center mt-4">
-                            <Link href={`https://imdb.com/title/${currentMovie.imdbid}`} className=""><p>{details.imdbrating}/10</p><p>IMDb</p></Link>
-                            <Separator orientation="vertical"/>
+                            <Link href={`https://imdb.com/title/${currentMovie.imdbID}`} className=""><p>{details.imdbrating}/10</p><p>IMDb</p></Link>
+                            <Separator orientation="vertical" />
                             <p className="">Duration <p>{details.runtime}</p></p>
                         </div>
                         <Label htmlFor="genre" className="underline">Genres</Label>
@@ -109,7 +146,7 @@ export default function SheetDemo() {
                                 ))}
                         </div>
                     </div>}
-                </SheetContent> 
+                </SheetContent>
             </Sheet>
         </main>
     )
