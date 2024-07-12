@@ -19,7 +19,7 @@ const Loading: React.FC = () => {
                     <p className=" animate-bounce" style={{animationDelay:"1000ms"}}>e</p>
                     <p className=" animate-bounce" style={{animationDelay:"1250ms"}}>s</p>
                     <p className=" animate-bounce" style={{animationDelay:"1500ms"}}>t</p></Label>
-                <p className="text-muted-foreground text-center">"Bringing to you the latest and the best movies and shows"</p>
+                <p className="text-muted-foreground text-center">`&quot;`Bringing to you the latest and the best movies and shows`&quot;`</p>
             </div>
         </main>
     )

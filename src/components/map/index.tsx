@@ -89,7 +89,7 @@ const Map: React.FC = () => {
                 
                 <ScrollArea className='h-[90vh]'>
                     {cinemas.sort((a, b) => a.distance - b.distance).map((cinema) => (
-                        <Link 
+                        <Link  key={cinema.fsq_id}
                         href={bookMyShow[cinema.name]?`https://in.bookmyshow.com/cinemas-list/${cinema.name}/${cinema.location.locality}/${bookMyShow[cinema.name]}`:
                         `https://in.bookmyshow.com/${cinema.location.locality}/cinemas`}>
                         <div className='mt-4'>

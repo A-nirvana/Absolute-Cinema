@@ -11,7 +11,7 @@ const NotFound: React.FC = () => {
                 <p className="text-7xl font-semibold text-muted-foreground mt-2">404</p>
             </div>
             <p className="text-xl font-semibold text-muted-foreground mt-4">Not all roads lead to Rome</p>
-            <p className="md:text-xl font-semibold text-muted-foreground">We can't find what your're looking for,</p>
+            <p className="md:text-xl font-semibold text-muted-foreground">We can`&apos;`t find what your're looking for,</p>
             <p className="md:text-xl font-semibold text-muted-foreground">You can go to</p>
             <div className="flex space-x-6 mt-4 mb-8">
                 <Button variant="outline">
