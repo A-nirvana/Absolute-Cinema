@@ -27,7 +27,6 @@ export const addFavorite = async (user: User | null | undefined, imdbid: string,
 export const getUser = async (user: User | null | undefined,) => {
 	const userRef = doc(db, "users", user?.uid?user.uid:"");
 	const userDetails = await getDoc(userRef);
-	console.log(userDetails.data())
 	return userDetails.data();
 
 }

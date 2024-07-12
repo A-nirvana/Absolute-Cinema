@@ -20,7 +20,7 @@ const fetchOMDbDetails = async (imdbid: string) => {
   try {
     const response = await fetch(url);
     result = await response.json();
-    console.log(result)
+  
   }
   catch (e) {
     console.log(e)
@@ -34,7 +34,7 @@ const fetchMovies = async (movie: string,page:number) => {
   try {
     const response = await fetch(url);
     result = await response.json();
-    console.log(result)
+  
   }
   catch (e) {
     console.log(e)
@@ -98,7 +98,7 @@ export const fetchNowPlaying = async (type: "movie" | "tv") => {
   try {
     const response = await fetch(url);
     result = await response.json();
-    console.log(result)
+  
   }
   catch (e) {
     console.log(e)

@@ -35,8 +35,9 @@ const Me: React.FC = () => {
                 <p className="text-md font-medium text-muted-foreground">{userDetails?.email}</p>
                 <p className="text-md font-medium text-muted-foreground">Plan: {userDetails?.premium ? "Spotlight" : "Freeview"}</p>
                 <div className="flex justify-center space-x-4 mt-4">
-                    <Button variant="default">Upgrade Plan</Button>
-                    <Button variant="destructive" className="md:absolute bottom-4">Logout</Button>
+                    <Button variant="default"><Link href="/premium">Upgrade Plan</Link></Button>
+                    <Button variant="destructive" className="md:absolute bottom-4">
+                        <Link href="/auth/login">Logout</Link></Button>
                 </div>
 
             </div>
@@ -51,7 +52,6 @@ const Me: React.FC = () => {
                                 </Link>
                                 <p>{favorite.name}</p>
                             </div>
-                            <button className="text-red-500">Remove</button>
                         </div>
                     ))}
                 </div>

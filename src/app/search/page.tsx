@@ -15,7 +15,7 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
-import { fetchMovieDetails } from "@/lib/apis"
+import { fetchOMDbDetails } from "@/lib/apis"
 import { ArrowRight, ChevronRight, Heart, Loader2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -24,6 +24,23 @@ import { useUser } from "../UserProvider"
 import { addFavorite, getUser } from "@/lib/firebase/fireStore"
 import { DocumentData } from "firebase/firestore"
 
+function convertStringListToArray(genres: string): string[] {
+    return genres.split(',').map(genre => genre.trim());
+}
+
+function convertDuration(durationStr:string) {
+    const minutes = parseInt(durationStr, 10);
+  
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+  
+    if (hours === 0) {
+      return `${remainingMinutes} min`;
+    }
+  
+    return `${hours} hr ${remainingMinutes} min`;
+  }
+  
 export default function SheetDemo() {
     const [info, setInfo] = useState({} as any)
     const [page, setPage] = useState(1)
@@ -43,7 +60,7 @@ export default function SheetDemo() {
     }, [user])
     useEffect(() => {
         setDetails({})
-        if (currentMovie.Title) fetchMovieDetails(currentMovie.imdbID).then((data) => {
+        if (currentMovie.Title) fetchOMDbDetails(currentMovie.imdbID).then((data) => {
             setDetails(data)
         })
     }, [currentMovie.imdbID])
@@ -115,36 +132,27 @@ export default function SheetDemo() {
                         </SheetDescription>
                     </SheetHeader>
                     <Separator className="my-2" />
-                    <Link href={`movie/${currentMovie.imdbID}`}>Get the Details</Link>
-                    {!details.released && <div className="h-[50vh] w-full flex justify-center items-center">
+                    {!details.Released && <div className="h-[50vh] w-full flex justify-center items-center">
                         <div className="h-max w-max"><Loader2 className=" animate-spin" size={70} /></div></div>}
-                    {details.released && <div>
+                    {details.Released && <div className="flex flex-col">
                         <div className="flex text-sm items-center space-x-4 h-10 mb-4 justify-center mt-4">
-                            <Link href={`https://imdb.com/title/${currentMovie.imdbID}`} className=""><p>{details.imdbrating}/10</p><p>IMDb</p></Link>
+                            <Link href={`https://imdb.com/title/${currentMovie.imdbID}`} className=""><p>{details.imdbRating}/10</p><p>IMDb</p></Link>
                             <Separator orientation="vertical" />
-                            <p className="">Duration <p>{details.runtime}</p></p>
+                            <p className="">Duration <p>{convertDuration(details.Runtime)}</p></p>
                         </div>
                         <Label htmlFor="genre" className="underline">Genres</Label>
                         <div className="flex space-x-3 mt-1 mb-4" id="genre">
-                            {details.genre && details.genre.map((genre: string) => (
+                            {details.Genre && convertStringListToArray(details.Genre).map((genre: string) => (
                                 <Badge key={genre} variant="secondary">{genre}</Badge>
                             ))}
                         </div>
                         <Label htmlFor="language" className="underline">Languages</Label>
                         <div className="flex space-x-3 mt-1 mb-4" id="language">
-                            {details.language && details.language.map((language: string) => (
+                            {details.Language && convertStringListToArray(details.Language).map((language: string) => (
                                 <Badge key={language} variant="outline">{language}</Badge>
                             ))}
                         </div>
-                        <Label className="underline">Stream Now on</Label>
-                        <div className="flex flex-wrap mt-1">
-                            {details.streamingAvailability && details.streamingAvailability.country && details.streamingAvailability.country.US &&
-                                details.streamingAvailability.country.US.map((streamingService: any) => (
-                                    <div key={streamingService.service} className="flex items-center space-x-2">
-                                        <Button variant="link" size="sm">{streamingService.platform}</Button>
-                                    </div>
-                                ))}
-                        </div>
+                    <Button className="self-center mt-4"><Link href={`movie/${currentMovie.imdbID}` }>Get the Details</Link></Button>      
                     </div>}
                 </SheetContent>
             </Sheet>
