@@ -16,6 +16,7 @@ import Trailer from "@/components/ui/trailer"
 import Link from "next/link"
 import { ratingIcons, convertUrl, convertDuration, watchIcons, determineIdType } from "./utils"
 import { toast } from "sonner"
+import { SheetTrigger, Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 
 interface Rating {
     Source: string;
@@ -38,13 +39,14 @@ export default function MovieDetails() {
     const [ratings, setRatings] = useState<Rating[]>([])
     const [reviews, setReviews] = useState([""])
     const [videoId, setVideoId] = useState("")
+    const [YTrailer, setYTTrailer] = useState("")
     const params = useParams()
     let movieId = Array.isArray(params.imdbid) ? params.imdbid[0] : params.imdbid;
 
     const type = determineIdType(movieId)
 
     if (type == "tmdb") {
-        fetch(`https//api.themoviedb.https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${process.env.TMDB_API_KEY}`).
+        fetch(`https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`).
             then((res) => res.json().then((data) => {
                 movieId = data.imdb_id
             }))
@@ -53,36 +55,50 @@ export default function MovieDetails() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const omDbData = await fetchOMDbDetails(movieId);
+                const omDbData = await fetchOMDbDetails('tt7286456');
                 {
                     setOmDetails(omDbData);
                     setRatings(omDbData.Ratings);
                 }
+                fetchOMDbDetails(movieId).then((data) => {
+                    console.log(movieId)
+                    fetch(`/api/trailer?title=${data.Title}%${data.Year}`).then((res) => {
+                        res.json().then((data) => {
+                            if (data.items && data.items.length > 0) {
+                                const firstVideoId = data.items[0].id.videoId;
+                                setYTTrailer(firstVideoId);
+                            } else {
+                                setYTTrailer("");
+                            }
+                        })
+                    })
+                });
+
                 // const movieData = await fetchMovieDetails(movieId);
                 // {
                 //     setCurrentMovie(movieData);
                 // }
                 // fetchAdditionalDetails(movieId).then((data) => {
-                    //     setDetails(data)
-                    // })
-                } catch (error) {
-                    console.error("Error fetching movie details:", error);
-                }
-            };
-            
-            fetchData();
-            toast.custom((t) => (
-                <div className="min-w-screen min-h-screen bg-white text-black p-8 rounded border-4">
-                  <h1 className="font-semibold">THIS PAGE IS ONLY A DEMO OF WHAT COULD HAVE BEEN IF THE API PROVIDER DID NOT GET THE API DOWN ON THE VERY LAST DAY BEFORE SUBMISSION</h1>
-                   <Button variant="destructive" onClick={() => toast.dismiss(t)}>Dismiss</Button>
-                </div>
-              ));
-        }, [movieId])
-        
-        
-        useEffect(() => {
-            setCurrentMovie(titleExample)
-            setDetails(additionalExample)
+                //     setDetails(data)
+                // })
+            } catch (error) {
+                console.error("Error fetching movie details:", error);
+            }
+        };
+
+        fetchData();
+        toast.custom((t) => (
+            <div className="min-w-screen min-h-screen bg-white text-black p-8 rounded border-4">
+                <h1 className="font-semibold">THIS PAGE IS ONLY A DEMO OF WHAT COULD HAVE BEEN IF THE API PROVIDER DID NOT GET THE API DOWN ON THE VERY LAST DAY BEFORE SUBMISSION</h1>
+                <Button variant="destructive" onClick={() => toast.dismiss(t)}>Dismiss</Button>
+            </div>
+        ));
+    }, [movieId])
+
+
+    useEffect(() => {
+        setCurrentMovie(titleExample)
+        setDetails(additionalExample)
     }, [])
 
     useEffect(() => {
@@ -106,6 +122,30 @@ export default function MovieDetails() {
                             <Image src={image} alt={currentMovie.title} width={270} height={360} className="rounded-l border-r-4 border-transparent hidden md:block" /> :
                             <Skeleton className="h-[210px] w-[150px] border-2 rounded shadow-md shadow-slate-600 dark:shadow-slate-800 hidden md:block" />}
                         {videoId && <Trailer videoId={videoId} />}
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button className="absolute md:right-4">watch trailer anyways</Button>
+                            </SheetTrigger>
+                            <SheetContent side="bottom" className="flex flex-col items-center">
+                                <SheetHeader>
+                                    <SheetTitle>Trailer {'(Sorry for the inconvenience caused by API issues)'}</SheetTitle>
+                                </SheetHeader>
+                                <iframe
+                                    className="relative md:hidden"
+                                    allow="autoplay; fullscreen;"
+                                    width="320"
+                                    height="180"
+                                    src={`https://www.youtube.com/embed/${YTrailer}?rel=0&cc_load_policy=1&iv_load_policy=3&showinfo=0`}
+                                />
+                                <iframe
+                                    className="relative hidden md:block"
+                                    allow="autoplay; fullscreen;"
+                                    width="960"
+                                    height="540"
+                                    src={`https://www.youtube.com/embed/${YTrailer}?rel=0&cc_load_policy=1&iv_load_policy=3&showinfo=0`}
+                                />
+                            </SheetContent>
+                        </Sheet>
                     </div>
                     <div className="mt-[250px] md:mt-4">
                         <div className="flex space-x-3 mt-1 mb-4" id="genre">

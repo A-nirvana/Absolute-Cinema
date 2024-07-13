@@ -51,10 +51,10 @@ const Map: React.FC = () => {
                 try {
                     const options = {
                         method: 'GET',
-                        url: 'https://api.foursquare.com/v3/places/nearby?ll=26.1554176%2C91.7700608&hacc=30000&query=Cine',
+                        url: `https://api.foursquare.com/v3/places/nearby?ll=${location[0]},${location[1]}&hacc=30000&query=Cine`,
                         headers: {
                             accept: 'application/json',
-                            Authorization: 'fsq3IlXo93h23TRCxj0mYhhp1F/ZnwImx8d/NEM3ETnheIk='
+                            Authorization: process.env.NEXT_PUBLIC_FSQ_API_KEY
                         }
                     };
                     axios
