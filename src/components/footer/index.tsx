@@ -33,13 +33,10 @@ const Footer = () => {
                 <div className="w-[40%] md:max-w-[10vw] mt-12 md:mt-0">
                     <div className=' text-xl font-semibold'>Resources</div>
                     <ul>
-                        <li><a>College</a></li>
                         <li><a>Support</a></li>
                         <li><a>Safety</a></li>
                         <li><a>Blog</a></li>
                         <li><a>Feedback</a></li>
-                        <li><a>Gaming</a></li>
-                        <li><a>Quests</a></li>
                     </ul>
                 </div>
                 <div className="w-[40%] md:max-w-[10vw] mt-12 md:mt-0">

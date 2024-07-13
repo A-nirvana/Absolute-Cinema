@@ -34,9 +34,9 @@ const ClientComponent: React.FC<ClientComponentProps> = ({ hoarding, popular, no
   return (
     <>
       <CarouselDemo auto num={1} list={hoarding} />
-      <Label className="font-semibold text-xl text-muted-foreground mt-12 mb-4 w-[84%]">TRENDING</Label>
+      <Label className="font-semibold text-xl text-muted-foreground mt-20 mb-4 w-[84%]">TRENDING</Label>
       <CarouselDemo list={trending} />
-      <Label className="font-semibold md:text-xl text-muted-foreground mt-16 mb-4 w-[84%]">POPULAR</Label>
+      <Label className="font-semibold text-xl text-muted-foreground mt-12 mb-4 w-[84%]">POPULAR</Label>
       <CarouselDemo list={popular} />
       <Label className="font-semibold text-xl text-muted-foreground mt-12 mb-4 w-[84%]">NOW PLAYING</Label>
       <CarouselDemo list={now} />

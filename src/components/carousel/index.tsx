@@ -37,7 +37,7 @@ const CarouselDemo: React.FC<CarouselDemoProps> = ({ auto, num, list }) => {
         }),
       ] : []}
     >
-      <CarouselContent className={`${num ? "" : "overflow-x-scroll "} md:overflow-x-visible`} style={{ scrollbarWidth: "none" }}>
+      <CarouselContent className={`${num ? "" : ""} md:overflow-x-visible`} style={{ scrollbarWidth: "none" }}>
         {list && list[0] && list.map((item, index) => (
           <CarouselItem key={index} className={num ? "" : "basis-1/4 md:basis-1/6 lg:basis-1/6"}>
             <div className={`p-1 ${"w-max"}`}>
